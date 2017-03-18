@@ -1,0 +1,339 @@
+<!doctype html>
+<html>
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ipaddr.js/1.2.0/ipaddr.min.js" type="text/javascript"></script>
+  <script>
+
+function unpack(str) {
+	const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+	var idx_a = chars.indexOf('a');
+	var idx_A = chars.indexOf('A');
+	const base = 64;
+	if (typeof(str) !== 'string') {
+		throw "unpack() expects a string: " + str;
+	}
+
+	var n = 0;
+	for (var i = 0; i < str.length; i++) {
+		n *= base;
+		var c = str.charCodeAt(i);
+		switch (true) {
+		case (str[i] === '+'):
+			n += 62;
+			continue;
+		case (str[i] === '/'):
+			n += 63;
+			break;
+			continue;
+		case (c >= 48 && c <= 58):
+			n += c - 48;
+			break;
+			continue;
+		case (c >= 65 && c <= 90):
+			n += idx_A + c - 65;
+			break;
+			continue;
+		case (c >= 97 && c <= 122):
+			n += idx_a + c - 97;
+			break;
+			continue;
+		default:
+			throw "unpack: unexpected character " + str[i];
+		}
+	}
+	return n;
+}
+
+function pack(n) {
+	const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+	const base = 64;
+	if (typeof(n) !== 'number') {
+		throw "pack() expects a number, got " + n + " of type " + typeof(n);
+	}
+	var l = Math.floor(Math.log(n)/Math.log(base))+1;
+	var s = new Uint8Array(l)
+	for (var i = l-1; i >= 0; i--) {
+		s[i] = chars[n % base].toString().charCodeAt(0);
+		n = Math.floor(n / base);
+	}
+	return String.fromCharCode.apply(null, new Uint8Array(s));
+}
+
+function reduce(desc) {
+  var sdp = desc.sdp;
+  var lines = sdp.split('\r\n');
+  lines = lines.filter(function (line) {
+    return ((line.indexOf('a=candidate:') === 0)) ||
+		    //&& line.indexOf('typ relay') !== -1 && line.charAt(14) === '1') || 
+      line.indexOf('a=ice-ufrag:') === 0 ||
+      line.indexOf('a=ice-pwd:') === 0 ||
+      line.indexOf('a=fingerprint:') === 0;
+  });
+  lines = lines.sort().reverse();
+  // why is chrome reporting more than one candidate?
+  // pick last candidate
+  //lines = lines.slice(0, 3).concat(lines[4]);
+
+  var firstcand = true;
+  var comp = [];
+  var ips = {};
+  lines.forEach(function (line) {
+    switch(line.split(':')[0]) {
+      case 'a=fingerprint':
+        var hex = line.substr(22).split(':').map(function (h) {
+          return parseInt(h, 16);
+        });
+        // b64 is slightly more concise than colon-hex
+        comp.push(btoa(String.fromCharCode.apply(String, hex)));
+	break;
+      case 'a=ice-pwd':
+        comp.push(line.substr(10)); // already b64
+	break;
+      case 'a=ice-ufrag':
+        comp.push(line.substr(12)); // already b64
+	break;
+      case 'a=candidate':
+        var parts = line.substr(12).split(' ');        
+        var iparr = parts[4].split('.');
+	var ip = iparr.reduce(function (prev, cur) { return (prev << 8) + parseInt(cur, 10); });
+	//var ip = ipaddr.parse(line.substr(2).split(' ')[2]).octets.reduce(function(prev, cur){return (prev << 8) + cur;});
+        // take ip/port from candidate, encode
+        // foundation and priority are not required
+        // can I have sprintf("%4c%4c%4c%2c") please? pike rocks
+        // since chrome (for whatever reason) generates two candidates with the same foundation, ip and different port
+        // (possibly the reason for this is multiple local interfaces but still...)
+	if (ips[ip] === undefined) {
+		ips[ip] = [];
+	}
+	ips[ip].push(pack(parseInt(parts[5])));
+	break;
+    }
+  })
+  for (var key in ips) {
+	  comp.push(pack(parseInt(key)) + ':' + ips[key].join(';'));
+  }
+  return (desc.type === 'offer' ? 'O' : 'A') + comp.join(',');
+}
+
+function expand(str) {
+  var type = str[0] === 'O' ? 'offer' : 'answer';
+  var comp = str.substr(1).split(',');
+  var idx = 0;
+  var sdp = ['v=0',
+    'o=- 5498186869896684180 2 IN IP4 127.0.0.1',
+    's=-', 't=0 0', 'a=msid-semantic: WMS',
+    'm=application 9 DTLS/SCTP 5000',
+    'c=IN IP4 0.0.0.0',
+    'a=mid:data',
+    'a=sctpmap:5000 webrtc-datachannel 1024'
+  ];
+  if (str[0] === 'A') {
+    sdp.push('a=setup:active');
+  } else {
+    sdp.push('a=setup:actpass');
+  }
+  sdp.push('a=ice-ufrag:' + comp[idx++]);
+  sdp.push('a=ice-pwd:' + comp[idx++]);
+  sdp.push('a=fingerprint:sha-256 ' + atob(comp[idx++]).split('').map(function (c) { var d = c.charCodeAt(0); var e = c.charCodeAt(0).toString(16).toUpperCase(); if (d < 16) e = '0' + e; return e; }).join(':'));
+
+  // parse subsequent candidates
+  var prio = 2;
+  for (var i = idx; i < comp.length; i++) {
+    var j = comp[i].indexOf(':')
+    var ipNum = unpack(comp[i].substr(0,j));
+    var ip = [(ipNum >> 24) & 0xff, (ipNum >> 16) & 0xff, (ipNum >> 8) & 0xff, ipNum & 0xff].join('.');
+    var ports = comp[i].substr(j+1).split(';');
+    for (var k = 0; k < ports.length; k++) {
+            var port = ports[k];
+	    cand = ['a=candidate:0',
+	       '1', 'udp',
+	       prio++, // increase priority
+	       ip, // ip stays the same
+	       port ? unpack(port) : 0, // port changes 
+	       'typ host' // well, not a host cand but...
+	    ];
+	    sdp.push(cand.join(' '));
+    }
+  }
+  return {type: type, sdp: sdp.join('\r\n') + '\r\n'};
+}
+
+/*
+function reduce(desc) {
+  var sdp = desc.sdp;
+  var lines = sdp.split('\r\n');
+  lines = lines.filter(function (line) {
+    return ((line.indexOf('a=candidate:') === 0) && line.indexOf('typ relay') !== -1 && line.charAt(14) === '1') || 
+      line.indexOf('a=ice-ufrag:') === 0 ||
+      line.indexOf('a=ice-pwd:') === 0 ||
+      line.indexOf('a=fingerprint:') === 0;
+  });
+  lines = lines.sort().reverse();
+  // why is chrome reporting more than one candidate?
+  // pick last candidate
+  //lines = lines.slice(0, 3).concat(lines[4]);
+
+  var firstcand = true;
+  var comp = lines.map(function (line) {
+    switch(line.split(':')[0]) {
+      case 'a=fingerprint':
+        var hex = line.substr(22).split(':').map(function (h) {
+          return parseInt(h, 16);
+        });
+        // b64 is slightly more concise than colon-hex
+        return btoa(String.fromCharCode.apply(String, hex));
+      case 'a=ice-pwd':
+        return line.substr(10); // already b64
+      case 'a=ice-ufrag':
+        return line.substr(12); // already b64
+      case 'a=candidate':
+        var parts = line.substr(12).split(' ');        
+        var ip = parts[4].split('.').reduce(function (prev, cur) { return (prev << 8) + parseInt(cur, 10); });
+        // take ip/port from candidate, encode
+        // foundation and priority are not required
+        // can I have sprintf("%4c%4c%4c%2c") please? pike rocks
+        // since chrome (for whatever reason) generates two candidates with the same foundation, ip and different port
+        // (possibly the reason for this is multiple local interfaces but still...)
+        if (firstcand) {
+          firstcand = false;
+          return [ip, parseInt(parts[5])].map(function (a) { return a.toString(32); }).join(',');
+        } else {
+          return [parseInt(parts[5])].map(function (a) { return a.toString(32); }).join(',');
+        }
+    }
+  })
+  return [desc.type === 'offer' ? 'O' : 'A'].concat(comp).join(',');
+}
+
+function expand(str) {
+  var comp = str.split(',');
+  var sdp = ['v=0',
+    'o=- 5498186869896684180 2 IN IP4 127.0.0.1',
+    's=-', 't=0 0', 'a=msid-semantic: WMS',
+    'm=application 9 DTLS/SCTP 5000',
+    'c=IN IP4 0.0.0.0',
+    'a=mid:data',
+    'a=sctpmap:5000 webrtc-datachannel 1024'
+  ];
+  if (comp[0] === 'A') {
+    sdp.push('a=setup:active');
+  } else {
+    sdp.push('a=setup:actpass');
+  }
+  sdp.push('a=ice-ufrag:' + comp[1]);
+  sdp.push('a=ice-pwd:' + comp[2]);
+  sdp.push('a=fingerprint:sha-256 ' + atob(comp[3]).split('').map(function (c) { var d = c.charCodeAt(0); var e = c.charCodeAt(0).toString(16).toUpperCase(); if (d < 16) e = '0' + e; return e; }).join(':'));
+  var candparts;
+  candparts = comp.splice(4, 2).map(function (c) { return parseInt(c, 32); });
+  var ip = [(candparts[0] >> 24) & 0xff, (candparts[0] >> 16) & 0xff, (candparts[0] >> 8) & 0xff, candparts[0] & 0xff].join('.');
+  var cand = ['a=candidate:0', // foundation 0
+     '1', 'udp',
+     '1', // priority 1
+     ip,
+     candparts[1],
+     'typ host' // well, not a host cand but...
+  ];
+  sdp.push(cand.join(' '));
+  // parse subsequent candidates
+  var prio = 2;
+  for (var i = 4; i < comp.length; i++) {
+    cand = ['a=candidate:0',
+       '1', 'udp',
+       prio++, // increase priority
+       ip, // ip stays the same
+       parseInt(comp[i], 32), // port changes 
+       'typ host' // well, not a host cand but...
+    ];
+    sdp.push(cand.join(' '));
+  }
+  return {type: comp[0] === 'O' ? 'offer' : 'answer', sdp: sdp.join('\r\n') + '\r\n'};
+}
+*/
+
+  </script>
+  <script src="chat.js"></script>
+  <style>
+  * {
+    box-sizing: border-box;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+  }
+  body {
+    position: absolute;
+    width: 100%; height: 100%; top: 0; margin: 0 auto;
+    background-color: #424;
+    color: #ccc;
+    text-align: center;
+    font-size: 24px;
+    font-family: monospace;
+  }
+  textarea {
+    background-color: #333;
+    color: #fff;
+    resize: none;
+  }
+  .chatarea {
+    position: relative; border: none;
+    width: 50%; min-width: 40em;
+    padding: 0.5em; margin: auto;
+  }
+  .active { background-color: #252; }
+  #chatlog {
+    display: block;
+    width: 100%;
+    min-height: 40em;
+    margin-bottom: 1em;
+    padding: 8px;
+  }
+  .inputarea {
+    position: relative;
+    width: 100%;
+    height: 3em;
+    display: block;
+  }
+  #input {
+    display: inline-block;
+    position: absolute; left: 0;
+    width: 89%; height: 100%;
+    padding: 8px 30px;
+    font-size: 80%;
+    background-color: #ccc;
+    border: 1px solid #999;
+  }
+  #send {
+    display: inline-block; position: absolute;
+    right: 0; top: 0;  height: 100%; width: 10%;
+    background-color: #202; color: #f8f;
+    font-variant: small-caps; font-size: 100%;
+    border: none; // box-shadow: 0 2px 5px #000;
+  }
+  #send:hover { background-color: #636; }
+  #username {
+    padding: 8px 2em; margin: 10px auto;
+    text-align: center;
+    display: block;
+    background-color: #000;
+    color: #999;
+    border: none;
+  }
+  </style>
+</head>
+<body>
+  <h1>go-webrtc chat demo</h1>
+
+  <div class="chatarea">
+    <textarea id="chatlog" readonly>
+    </textarea>
+    <div class="inputarea">
+      <input type="text" id="input">
+      <input type="submit" id="send" value="send">
+    </div>
+  </div>
+
+  <input type="text" id="username" value="">
+  username
+
+</body>
+</html>
