@@ -23,7 +23,7 @@
 <video loop muted playsinline><source src="https://github.com/tiborvass/dump/releases/download/test/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            navigator.serviceWorker.register('service-worker.js').then(registration => {
                 console.log('Service Worker registered');
 
                 // Setup message listener
