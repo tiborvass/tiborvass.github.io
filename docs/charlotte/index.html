@@ -11,7 +11,6 @@
         height: 100%;
         overflow: hidden;
         background: black;
-        color: white;
     }
     slide {
         position: absolute;
@@ -21,9 +20,12 @@
         justify-content: center;
         align-items: center;
         background: black;
-        transition: opacity 1s linear;
+	transition: opacity 1s linear;
         opacity: 0;
     }
+slide.keep.active {
+  transition: none;
+}
     .active {
         opacity: 1;
     }
@@ -36,6 +38,9 @@
 	    color: inherit; /* Inherits color from parent */
 	    font: inherit; /* Inherits font from parent */
 	}
+    text, title {
+	color: black;
+    }
     title {
         font-size: 48px;
     }
@@ -61,7 +66,7 @@
 </head>
 <body>
 <slideshow id="slideshow">
-<slide id="s0" class="active"><title>Big Title</title></slide>
+<slide id="s0" class="active" style="background: white;"><title>La Chaise - Kocjan</title></slide>
 <slide id="s1.1" class="">
 	<video loop muted playsinline><source src="media/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
 	<audio loop><source src="media/media2.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
@@ -80,10 +85,10 @@
 <slide id="s3.1">
 	<img src="media/image6.jpeg"></img>
 </slide>
-<slide id="s3.2">
+<slide id="s3.2" style="transition: none;"> <!-- TODO: transition: none because next slide is ALSO keep -->
 	<img src="media/image6.jpeg"></img> <!-- TODO: this shouldn't be duplicated -->
 </slide>
-<slide id="s3.3">
+<slide id="s3.3" class="keep">
 	<img src="media/image6.jpeg"></img> <!-- TODO: this shouldn't be duplicated -->
 	<audio loop x-keep="s4.2"><source src="media/media7.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
 	<!--<timer after=7.5s/>-->
@@ -91,18 +96,18 @@
 <slide id="s4.1">
 	<img src="media/image7.jpeg"></img>
 </slide>
-<slide id="s4.2">
+<slide id="s4.2" class="keep">
 	<img src="media/image7.jpeg"></img>
 	<audio loop x-keep="s5.1"><source src="media/media8.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
 </slide>
-<slide id="s4.3">
+<slide id="s4.3" class="keep">
 	<img src="media/image7.jpeg"></img>
 </slide>
 <slide id="s5.1">
 	<img src="media/image8.jpeg"></img>
 	<audio loop x-keep="s5.2"><source src="media/media9.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
 </slide>
-<slide id="s5.2">
+<slide id="s5.2" class="keep">
 	<img src="media/image8.jpeg"></img>
 </slide>
 <slide id="s6.1">
