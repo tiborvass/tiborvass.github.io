@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fullscreen Slide Transition</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+    .slide-container {
+        height: 100%;
+        position: relative;
+        background: black;
+        color: white;
+        font-family: Arial, sans-serif;
+        transition: opacity 1s ease-in-out;
+        opacity: 0;
+    }
+    .active {
+        opacity: 1;
+    }
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    .title {
+        font-size: 48px;
+    }
+    .text {
+        font-size: 24px;
+    }
+</style>
+</head>
+<body>
+<div class="slide-container active" id="slide1">
+    <div class="centered title">Big Title</div>
+</div>
+<div class="slide-container" id="slide2">
+    <div class="centered text">Smaller Text</div>
+</div>
+
+<script>
+    let currentSlide = 1;
+    function nextSlide() {
+        let current = document.getElementById('slide' + currentSlide);
+        let next = document.getElementById('slide' + (currentSlide === 1 ? 2 : 1));
+        current.classList.remove('active');
+        next.classList.add('active');
+        currentSlide = currentSlide === 1 ? 2 : 1;
+    }
+    setInterval(nextSlide, 2000); // Change slide every 5 seconds
+</script>
+</body>
+</html>
