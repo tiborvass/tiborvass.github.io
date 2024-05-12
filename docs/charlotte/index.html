@@ -60,7 +60,7 @@
 </style>
 </head>
 <body>
-<slideshow>
+<slideshow id="slideshow">
 <slide id="s0" class="active"><title>Big Title</title></slide>
 <slide id="s1.1" class="">
 	<video loop muted playsinline><source src="media/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
@@ -75,10 +75,50 @@
 </slide>
 <slide id="s2.2">
 	<video loop muted playsinline><source src="media/media5.mp4" type="video/mp4">Your browser does not support video tag</video>
-	<audio loop class="keep"><source src="media/media6.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+	<audio loop x-keep="s3.1"><source src="media/media6.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
 </slide>
 <slide id="s3.1">
 	<img src="media/image6.jpeg"></img>
+</slide>
+<slide id="s3.2">
+	<img src="media/image6.jpeg"></img> <!-- TODO: this shouldn't be duplicated -->
+</slide>
+<slide id="s3.3">
+	<img src="media/image6.jpeg"></img> <!-- TODO: this shouldn't be duplicated -->
+	<audio loop x-keep="s4.2"><source src="media/media7.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+	<!--<timer after=7.5s/>-->
+</slide>
+<slide id="s4.1">
+	<img src="media/image7.jpeg"></img>
+</slide>
+<slide id="s4.2">
+	<img src="media/image7.jpeg"></img>
+	<audio loop x-keep="s5.1"><source src="media/media8.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s4.3">
+	<img src="media/image7.jpeg"></img>
+</slide>
+<slide id="s5.1">
+	<img src="media/image8.jpeg"></img>
+	<audio loop x-keep="s5.2"><source src="media/media9.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s5.2">
+	<img src="media/image8.jpeg"></img>
+</slide>
+<slide id="s6.1">
+	<img src="media/image9.jpeg"></img>
+	<audio loop><source src="media/media10.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s6.2">
+	<video loop muted playsinline><source src="media/media11.mp4" type="video/mp4">Your browser does not support video tag</video>
+</slide>
+<slide id="s7">
+	<img src="media/image11.png"></img>
+	<audio onended="nextSlide()"><source src="media/media12.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s8">
+	<img src="media/image13.png"></img>
+	<audio><source src="media/media13.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
 </slide>
 </slideshow>
 
@@ -131,7 +171,7 @@
 		previous image
 		audio circulation
 6.1: TRANSITION 6
-	video: …
+	video: … 				NOTE: PAS UNE VIDEO MAIS UNE IMAGE!!
 	audio: …
 6.2: SCENE 6
 	video: …
@@ -146,21 +186,55 @@
 -->
 
 <script>
-    let slides = document.getElementsByTagName('slide');
-    let current = 0;
-	function nextSlide() { gotoSlide(current+1); }
-	function prevSlide() { gotoSlide(current-1); }
+    let slideshow = document.getElementById("slideshow");
+    let slides = slideshow.getElementsByTagName('slide');
+    let state = {n: 0, timers: []};
 	function play(e) { e.play(); }
 	function stop(e) { e.pause(); e.currentTime = 0; }
-    function gotoSlide(i) {
+	function nextSlide(x) {
+		console.log("NEXT: " + (state.n+1)); gotoSlide(state.n+1, x);
+	}
+	function prevSlide(x) {
+		// TODO: when there's a keep audio, it should start playing it even if it's not in its own slide.
+		console.log("PREV: " + (state.n-1)); gotoSlide(state.n-1, x);
+	}
+	function delay(fn, duration) {
+		let timer = setTimeout(function() {
+			fn();
+			state.timers = state.timers.filter(id => id !== timer);
+		}, duration);
+		state.timers.push(timer);
+	}
+    function gotoSlide(i, x) {
 	if (i < 0 || i >= slides.length) return;
+	if (x && "user" in x && x.user) {
+		// TODO: we shouldn't simply clear the timer, we shoud also execute its function
+		// The problem is its function is usually, nextSlide, but what we truly want is to stop the audio/video.
+		state.timers.forEach(clearTimeout);
+		if (i < state.n) slideshow.querySelectorAll('audio,video').forEach(stop);
+	}
         let next = slides[i];
-	let cur = slides[current];
+	let cur = slides[state.n];
         cur.classList.remove('active');
-	cur.querySelectorAll('audio,video').forEach(stop);
+	cur.querySelectorAll('audio:not([x-keep]),video:not([x-keep]').forEach(stop);
+	// TODO: flawed logic, this shouldn't be selecting from all slideshow, but somehow cur should have dependency links and we should loop through them
+	slideshow.querySelectorAll('audio[x-keep="'+cur.id+'"], video[x-keep="'+cur.id+'"]').forEach(stop);
 	next.querySelectorAll('audio,video').forEach(play);
         next.classList.add('active');
-        current = i;
+	switch (next.id) {
+	case 's3.3':
+		delay(nextSlide, 7500);
+		break;
+	case 's4.1':
+		delay(nextSlide, 2000);
+		break;
+	case 's4.2':
+		delay(nextSlide, 7250);
+		break;
+	case 's5.1':
+		delay(nextSlide, 5000);
+	}
+        state.n = i;
     }
 
 function toggleFullScreen() {
@@ -180,16 +254,19 @@ function toggleFullScreen() {
 document.addEventListener('keydown', function(event) {
 	if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return;
     switch (event.code) {
+	case 'Escape':
+		slideshow.querySelectorAll('audio,video').forEach(stop);
+		break;
         case 'ArrowLeft':
-		prevSlide();
+		prevSlide({user: true});
             break;
         case 'ArrowRight':
-		nextSlide();
+		nextSlide({user: true});
             break;
         case 'KeyT':
 		break;
         case 'Space':
-		nextSlide();
+		nextSlide({user: true});
             event.preventDefault(); // Prevent the default action (scrolling the page)
 		break;
 	case 'KeyF':
@@ -197,15 +274,15 @@ document.addEventListener('keydown', function(event) {
 		break;
 	case 'Digit0':
 	case 'Digit1':
-		gotoSlide(firstSlide);
+		gotoSlide(0, {user: true});
 		break;
 	case 'Digit9':
-		gotoSlide(lastSlide);
+		gotoSlide(slides.length - 1, {user: true});
             break;
     }
 });
 
-document.addEventListener('click', nextSlide);
+document.addEventListener('click', function() { nextSlide({user: true}); });
 
 </script>
 </body>
