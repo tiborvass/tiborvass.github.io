@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Progress Bar Demo</title>
+    <style>
+        #progress-bar {
+            width: 0%;
+            height: 20px;
+            background-color: green;
+        }
+        #progress-container {
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+<video loop muted playsinline><source src="https://github.com/tiborvass/dump/releases/download/test/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                console.log('Service Worker registered');
+
+                // Setup message listener
+		navigator.serviceWorker.addEventListener('message', event => {
+        	        if (event.data && event.data.type === 'FETCH_PROGRESS') {
+				const { url, receivedLength, totalLength } = event.data;
+				const progressPercent = (receivedLength / totalLength) * 100;
+				console.log(`Loading ${url}: ${progressPercent.toFixed(2)}% complete`);
+				// Update progress bar or other UI element here
+			}
+		});
+		/*
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'CACHE_PROGRESS') {
+                        const { cachedCount, total } = event.data;
+                        const progressPercent = (cachedCount / total) * 100;
+                        document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+                    }
+                });
+		*/
+            }).catch(error => {
+                console.log('Registration failed:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+
