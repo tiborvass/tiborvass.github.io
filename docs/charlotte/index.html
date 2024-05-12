@@ -202,14 +202,14 @@ slide.keep.active {
     let slideshow = document.getElementById("slideshow");
     let slides = slideshow.getElementsByTagName('slide');
     let state = {n: 0, timers: []};
-	function play(e) { e.play(); }
+	function play(e) { e.currentTime = 0; e.volume = 1; e.play(); }
 	function stop(e) { e.pause(); e.currentTime = 0; }
 	function nextSlide(x) {
-		console.log("NEXT: " + (state.n+1)); gotoSlide(state.n+1, x);
+		gotoSlide(state.n+1, x);
 	}
 	function prevSlide(x) {
 		// TODO: when there's a keep audio, it should start playing it even if it's not in its own slide.
-		console.log("PREV: " + (state.n-1)); gotoSlide(state.n-1, x);
+		gotoSlide(state.n-1, x);
 	}
 	function delay(fn, duration) {
 		let timer = setTimeout(function() {
@@ -237,6 +237,7 @@ function fadeOutMedia(mediaElement, fadeDuration = 1000) {
 
     function gotoSlide(i, x) {
 	if (i < 0 || i >= slides.length) return;
+	console.log("go to slide " + i);
 	if (x && "user" in x && x.user) {
 		// TODO: we shouldn't simply clear the timer, we shoud also execute its function
 		// The problem is its function is usually, nextSlide, but what we truly want is to stop the audio/video.
@@ -259,9 +260,10 @@ function fadeOutMedia(mediaElement, fadeDuration = 1000) {
 		delay(nextSlide, 2000);
 		break;
 	case 's4.2':
-		delay(nextSlide, 7250);
+		delay(nextSlide, 6250);
 		break;
 	case 's5.1':
+		next.querySelector('audio').volume = 0.3;
 		delay(nextSlide, 5000);
 	}
         state.n = i;
@@ -282,6 +284,11 @@ function toggleFullScreen() {
 }
 
 document.addEventListener('keydown', function(event) {
+	if (event.shiftKey && event.altKey && event.code === 'KeyT') {
+		let a = slides[state.n].querySelector('audio');
+		a.currentTime = a.duration - 3;
+		return;
+	}
 	if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return;
     switch (event.code) {
 	case 'Escape':
@@ -293,8 +300,6 @@ document.addEventListener('keydown', function(event) {
         case 'ArrowRight':
 		nextSlide({user: true});
             break;
-        case 'KeyT':
-		break;
         case 'Space':
 		nextSlide({user: true});
             event.preventDefault(); // Prevent the default action (scrolling the page)
