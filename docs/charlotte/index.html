@@ -39,13 +39,17 @@ slide.keep.active {
 	    font: inherit; /* Inherits font from parent */
 	}
     text, title {
+	position: absolute;
 	color: black;
     }
     title {
-        font-size: 48px;
+        font-size: 9vh;
+	top: 30%;
+	font-weight: bold;
     }
     text {
-        font-size: 24px;
+        font-size: 5vh;
+	bottom: 15%;
     }
 	video {
 	    position: fixed; /* Use fixed to cover the entire window */
@@ -66,7 +70,11 @@ slide.keep.active {
 </head>
 <body>
 <slideshow id="slideshow">
-<slide id="s0" class="active" style="background: white;"><title>La Chaise - Kocjan</title></slide>
+<slide id="s0" class="active" style="background: white;">
+	<title>La Chaise - Kocjan</title>
+	<text style="left: 10%;">Julien MOISAN</text>
+	<text style="right: 10%;">CM2 B Kerlor Juin 2024</text>
+</slide>
 <slide id="s1.1" class="">
 	<video loop muted playsinline><source src="media/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
 	<audio loop><source src="media/media2.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
