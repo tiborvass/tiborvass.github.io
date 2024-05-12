@@ -19,6 +19,7 @@ done
 echo -n "Deploying branches: $branches ?"
 read x;
 
+git push origin $branches
 git checkout -B main base
 git merge --no-ff --no-edit $branches
 git push -f origin main:main
