@@ -10,52 +10,204 @@
         padding: 0;
         height: 100%;
         overflow: hidden;
-    }
-    .slide-container {
-        height: 100%;
-        position: relative;
         background: black;
         color: white;
-        font-family: Arial, sans-serif;
-        transition: opacity 1s ease-in-out;
+    }
+    slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: black;
+        transition: opacity 1s linear;
         opacity: 0;
     }
     .active {
         opacity: 1;
     }
-    .centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-    }
-    .title {
+	title, text, video, img, audio {
+	    display: block; /* Ensures it behaves as a block-level element */
+	    margin: 0; /* No margin */
+	    padding: 0; /* No padding */
+	    border: none; /* No borders */
+	    background: none; /* No background color or image */
+	    color: inherit; /* Inherits color from parent */
+	    font: inherit; /* Inherits font from parent */
+	}
+    title {
         font-size: 48px;
     }
-    .text {
+    text {
         font-size: 24px;
     }
+	video {
+	    position: fixed; /* Use fixed to cover the entire window */
+	    top: 50%;
+	    left: 50%;
+	    min-width: 100%;
+	    min-height: 100%;
+	    width: auto;
+	    height: auto;
+	    transform: translate(-50%, -50%); /* Center the video */
+	  }
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
 </style>
 </head>
 <body>
-<div class="slide-container active" id="slide1">
-    <div class="centered title">Big Title</div>
-</div>
-<div class="slide-container" id="slide2">
-    <div class="centered text">Smaller Text</div>
-</div>
+<slideshow>
+<slide id="s0" class="active"><title>Big Title</title></slide>
+<slide id="s1.1" class="">
+	<video loop muted playsinline><source src="media/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
+	<audio loop><source src="media/media2.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s1.2">
+	<video loop muted playsinline><source src="media/media3.mp4" type="video/mp4">Your browser does not support video tag</video>
+	<audio loop><source src="media/media4.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s2.1">
+	<img src="media/image4.jpeg"></img>
+</slide>
+<slide id="s2.2">
+	<video loop muted playsinline><source src="media/media5.mp4" type="video/mp4">Your browser does not support video tag</video>
+	<audio loop class="keep"><source src="media/media6.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s3.1">
+	<img src="media/image6.jpeg"></img>
+</slide>
+</slideshow>
+
+<!--
+0:
+	text: Hello
+1.1: SCENE 1
+	video: …
+	audio: …
+1.2: TRANSITION 1
+	video: …
+	audio: …
+2.1: SCENE 2
+	image: …
+2.2: TRANSITION 2
+	video: …
+	audio: …
+3.1: TRANSITION 3a
+	keep: previous audio
+	image: …
+3.2: SCENE 3
+	keep: previous image
+	pause					OR next: go forward			OR transition: none
+3.3: TRANSITION 3b
+	keep: previous image
+	audio: ça ira
+	t+7.5: next
+	TODO: what about action?
+4.1: TRANSITION 4a
+	keep: previous audio
+	image: …
+	t+2: next
+4.2: TRANSITION 4b
+	keep:
+		previous image
+		previous audio
+	audio: war
+	t+4.5: next
+4.3: SCENE 4
+	keep:
+		previous image
+		audio war
+5.1: TRANSITION 5
+	keep: previous audio
+	audio: circulation
+	image: …
+	t+2: next
+5.2: SCENE 5
+	keep:
+		previous image
+		audio circulation
+6.1: TRANSITION 6
+	video: …
+	audio: …
+6.2: SCENE 6
+	video: …
+7: CHANT OURS BIPOLAIRE
+	image: …
+	audio: …
+		end: next
+8: CHANT ROCK
+	image: …
+	audio: …
+
+-->
 
 <script>
-    let currentSlide = 1;
-    function nextSlide() {
-        let current = document.getElementById('slide' + currentSlide);
-        let next = document.getElementById('slide' + (currentSlide === 1 ? 2 : 1));
-        current.classList.remove('active');
+    let slides = document.getElementsByTagName('slide');
+    let current = 0;
+	function nextSlide() { gotoSlide(current+1); }
+	function prevSlide() { gotoSlide(current-1); }
+	function play(e) { e.play(); }
+	function stop(e) { e.pause(); e.currentTime = 0; }
+    function gotoSlide(i) {
+	if (i < 0 || i >= slides.length) return;
+        let next = slides[i];
+	let cur = slides[current];
+        cur.classList.remove('active');
+	cur.querySelectorAll('audio,video').forEach(stop);
+	next.querySelectorAll('audio,video').forEach(play);
         next.classList.add('active');
-        currentSlide = currentSlide === 1 ? 2 : 1;
+        current = i;
     }
-    setInterval(nextSlide, 2000); // Change slide every 5 seconds
+
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    // Request full screen
+    document.documentElement.requestFullscreen().catch(err => {
+      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+    });
+  } else {
+    // Exit full screen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+}
+
+document.addEventListener('keydown', function(event) {
+	if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return;
+    switch (event.code) {
+        case 'ArrowLeft':
+		prevSlide();
+            break;
+        case 'ArrowRight':
+		nextSlide();
+            break;
+        case 'KeyT':
+		break;
+        case 'Space':
+		nextSlide();
+            event.preventDefault(); // Prevent the default action (scrolling the page)
+		break;
+	case 'KeyF':
+		toggleFullScreen();
+		break;
+	case 'Digit0':
+	case 'Digit1':
+		gotoSlide(firstSlide);
+		break;
+	case 'Digit9':
+		gotoSlide(lastSlide);
+            break;
+    }
+});
+
+document.addEventListener('click', nextSlide);
+
 </script>
 </body>
 </html>
+
