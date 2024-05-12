@@ -218,6 +218,23 @@ slide.keep.active {
 		}, duration);
 		state.timers.push(timer);
 	}
+
+function fadeOutMedia(mediaElement, fadeDuration = 1000) {
+    const fadeOutInterval = 50; // milliseconds between volume changes
+    const fadeStep = mediaElement.volume / (fadeDuration / fadeOutInterval);
+
+    let fadeMedia = setInterval(function () {
+        if (mediaElement.volume > fadeStep) {
+            mediaElement.volume -= fadeStep;
+        } else {
+            // When volume is very low, stop the interval and set volume to 0
+            mediaElement.volume = 0;
+            clearInterval(fadeMedia);
+		stop(mediaElement);
+        }
+    }, fadeOutInterval);
+}
+
     function gotoSlide(i, x) {
 	if (i < 0 || i >= slides.length) return;
 	if (x && "user" in x && x.user) {
@@ -229,9 +246,9 @@ slide.keep.active {
         let next = slides[i];
 	let cur = slides[state.n];
         cur.classList.remove('active');
-	cur.querySelectorAll('audio:not([x-keep]),video:not([x-keep]').forEach(stop);
+	cur.querySelectorAll('audio:not([x-keep]),video:not([x-keep]').forEach(function(x) { fadeOutMedia(x, 1000); });
 	// TODO: flawed logic, this shouldn't be selecting from all slideshow, but somehow cur should have dependency links and we should loop through them
-	slideshow.querySelectorAll('audio[x-keep="'+cur.id+'"], video[x-keep="'+cur.id+'"]').forEach(stop);
+	slideshow.querySelectorAll('audio[x-keep="'+cur.id+'"], video[x-keep="'+cur.id+'"]').forEach(function(x) { fadeOutMedia(x, 1000); });
 	next.querySelectorAll('audio,video').forEach(play);
         next.classList.add('active');
 	switch (next.id) {
