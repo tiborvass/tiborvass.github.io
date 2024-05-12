@@ -1,6 +1,6 @@
 const CACHE_NAME = 'site-cache-v1';
 const urlsToCache = [
-    '/test.html',
+    'test.html',
     'https://github.com/tiborvass/dump/releases/download/test/media1.mp4'
 ];
 
