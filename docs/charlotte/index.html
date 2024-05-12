@@ -12,6 +12,9 @@
         overflow: hidden;
         background: black;
     }
+	.no-cursor {
+		cursor: none;
+	}
     slide {
         position: absolute;
         width: 100%;
@@ -201,6 +204,7 @@ slide.keep.active {
 <script>
     let slideshow = document.getElementById("slideshow");
     let slides = slideshow.getElementsByTagName('slide');
+    let mouseTimer;
     let state = {n: 0, timers: []};
 	function play(e) { e.currentTime = 0; e.volume = 1; e.play(); }
 	function stop(e) { e.pause(); e.currentTime = 0; }
@@ -269,15 +273,27 @@ function fadeOutMedia(mediaElement, fadeDuration = 1000) {
         state.n = i;
     }
 
+function showCursor() {
+        document.body.classList.remove('no-cursor');  // Remove the class in case it's been added
+}
+
+function hideCursor() {
+	document.body.classList.add('no-cursor');
+}
+
 function toggleFullScreen() {
   if (!document.fullscreenElement) {
     // Request full screen
-    document.documentElement.requestFullscreen().catch(err => {
+    document.documentElement.requestFullscreen().then(() => {
+	document.addEventListener('mousemove', handleMouseMove);
+	}).catch(err => {
       alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
     });
   } else {
     // Exit full screen
     if (document.exitFullscreen) {
+	document.removeEventListener('mousemove', handleMouseMove);
+	showCursor();
       document.exitFullscreen();
     }
   }
@@ -319,6 +335,10 @@ document.addEventListener('keydown', function(event) {
 
 document.addEventListener('click', function() { nextSlide({user: true}); });
 
+function handleMouseMove() {
+    clearTimeout(mouseTimer);
+    showCursor();
+    mouseTimer = setTimeout(hideCursor, 1000);}
 </script>
 </body>
 </html>
