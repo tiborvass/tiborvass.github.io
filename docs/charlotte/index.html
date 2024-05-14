@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Chaise</title>
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+        background: black;
+    }
+	.no-cursor {
+		cursor: none;
+	}
+    slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: black;
+	transition: opacity 1s linear;
+        opacity: 0;
+    }
+slide.keep.active {
+  transition: none;
+}
+    .active {
+        opacity: 1;
+    }
+	title, text, video, img, audio {
+	    display: block; /* Ensures it behaves as a block-level element */
+	    margin: 0; /* No margin */
+	    padding: 0; /* No padding */
+	    border: none; /* No borders */
+	    background: none; /* No background color or image */
+	    color: inherit; /* Inherits color from parent */
+	    font: inherit; /* Inherits font from parent */
+	}
+    text, title {
+	position: absolute;
+	color: black;
+    }
+    title {
+        font-size: 9vh;
+	top: 30%;
+	font-weight: bold;
+    }
+    text {
+        font-size: 5vh;
+	bottom: 15%;
+    }
+	video {
+	    position: fixed; /* Use fixed to cover the entire window */
+	    top: 50%;
+	    left: 50%;
+	    min-width: 100%;
+	    min-height: 100%;
+	    width: auto;
+	    height: auto;
+	    transform: translate(-50%, -50%); /* Center the video */
+	  }
+	img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+</style>
+</head>
+<body>
+<slideshow id="slideshow">
+<slide id="s0" class="active" style="background: white;">
+	<title>La Chaise - Kocjan</title>
+	<text style="left: 10%;">Julien MOISAN</text>
+	<text style="right: 10%;">CM2 B Kerlor Juin 2024</text>
+</slide>
+<slide id="s1.1" class="">
+	<video loop muted playsinline><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media1.mp4" type="video/mp4">Your browser does not support video tag</video>
+	<audio loop><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media2.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s1.2">
+	<video loop muted playsinline><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media3.mp4" type="video/mp4">Your browser does not support video tag</video>
+	<audio loop><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media4.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s2.1">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image4.jpeg"></img>
+</slide>
+<slide id="s2.2">
+	<video loop muted playsinline><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media5.mp4" type="video/mp4">Your browser does not support video tag</video>
+	<audio loop x-keep="s3.1"><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media6.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s3.1">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image6.jpeg"></img>
+</slide>
+<slide id="s3.2" style="transition: none;"> <!-- TODO: transition: none because next slide is ALSO keep -->
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image6.jpeg"></img> <!-- TODO: this shouldn't be duplicated -->
+</slide>
+<slide id="s3.3" class="keep">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image6.jpeg"></img> <!-- TODO: this shouldn't be duplicated -->
+	<audio loop x-keep="s4.2"><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media7.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+	<!--<timer after=7.5s/>-->
+</slide>
+<slide id="s4.1">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image7.jpeg"></img>
+</slide>
+<slide id="s4.2" class="keep">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image7.jpeg"></img>
+	<audio loop x-keep="s5.1"><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media8.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s4.3" class="keep">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image7.jpeg"></img>
+</slide>
+<slide id="s5.1">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image8.jpeg"></img>
+	<audio loop x-keep="s5.2"><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media9.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s5.2" class="keep">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image8.jpeg"></img>
+</slide>
+<slide id="s6.1">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image9.jpeg"></img>
+	<audio loop><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media10.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s6.2">
+	<video loop muted playsinline><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media11.mp4" type="video/mp4">Your browser does not support video tag</video>
+</slide>
+<slide id="s7">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image11.png"></img>
+	<audio onended="nextSlide()"><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media12.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+<slide id="s8">
+	<img src="https://sasi.ams3.cdn.digitaloceanspaces.com/image13.png"></img>
+	<audio><source src="https://sasi.ams3.cdn.digitaloceanspaces.com/media13.mp3" type="audio/mp3">Your browser does not support the audio element.</audio>
+</slide>
+</slideshow>
+
+<!--
+0:
+	text: Hello
+1.1: SCENE 1
+	video: …
+	audio: …
+1.2: TRANSITION 1
+	video: …
+	audio: …
+2.1: SCENE 2
+	image: …
+2.2: TRANSITION 2
+	video: …
+	audio: …
+3.1: TRANSITION 3a
+	keep: previous audio
+	image: …
+3.2: SCENE 3
+	keep: previous image
+	pause					OR next: go forward			OR transition: none
+3.3: TRANSITION 3b
+	keep: previous image
+	audio: ça ira
+	t+7.5: next
+	TODO: what about action?
+4.1: TRANSITION 4a
+	keep: previous audio
+	image: …
+	t+2: next
+4.2: TRANSITION 4b
+	keep:
+		previous image
+		previous audio
+	audio: war
+	t+4.5: next
+4.3: SCENE 4
+	keep:
+		previous image
+		audio war
+5.1: TRANSITION 5
+	keep: previous audio
+	audio: circulation
+	image: …
+	t+2: next
+5.2: SCENE 5
+	keep:
+		previous image
+		audio circulation
+6.1: TRANSITION 6
+	video: … 				NOTE: PAS UNE VIDEO MAIS UNE IMAGE!!
+	audio: …
+6.2: SCENE 6
+	video: …
+7: CHANT OURS BIPOLAIRE
+	image: …
+	audio: …
+		end: next
+8: CHANT ROCK
+	image: …
+	audio: …
+
+-->
+
+<script>
+    let slideshow = document.getElementById("slideshow");
+    let slides = slideshow.getElementsByTagName('slide');
+    let mouseTimer;
+    let state = {n: 0, timers: []};
+	function play(e) { e.currentTime = 0; e.volume = 1; e.play(); }
+	function stop(e) { e.pause(); e.currentTime = 0; }
+	function nextSlide(x) {
+		gotoSlide(state.n+1, x);
+	}
+	function prevSlide(x) {
+		// TODO: when there's a keep audio, it should start playing it even if it's not in its own slide.
+		gotoSlide(state.n-1, x);
+	}
+	function delay(fn, duration) {
+		let timer = setTimeout(function() {
+			fn();
+			state.timers = state.timers.filter(id => id !== timer);
+		}, duration);
+		state.timers.push(timer);
+	}
+
+function fadeOutMedia(mediaElement, fadeDuration = 1000) {
+    const fadeOutInterval = 50; // milliseconds between volume changes
+    const fadeStep = mediaElement.volume / (fadeDuration / fadeOutInterval);
+
+    let fadeMedia = setInterval(function () {
+        if (mediaElement.volume > fadeStep) {
+            mediaElement.volume -= fadeStep;
+        } else {
+            // When volume is very low, stop the interval and set volume to 0
+            mediaElement.volume = 0;
+            clearInterval(fadeMedia);
+		stop(mediaElement);
+        }
+    }, fadeOutInterval);
+}
+
+    function gotoSlide(i, x) {
+	if (i < 0 || i >= slides.length) return;
+	console.log("go to slide " + i);
+	if (x && "user" in x && x.user) {
+		// TODO: we shouldn't simply clear the timer, we shoud also execute its function
+		// The problem is its function is usually, nextSlide, but what we truly want is to stop the audio/video.
+		state.timers.forEach(clearTimeout);
+		if (i < state.n) slideshow.querySelectorAll('audio,video').forEach(stop);
+	}
+        let next = slides[i];
+	let cur = slides[state.n];
+        cur.classList.remove('active');
+	cur.querySelectorAll('audio:not([x-keep]),video:not([x-keep]').forEach(function(x) { fadeOutMedia(x, 1000); });
+	// TODO: flawed logic, this shouldn't be selecting from all slideshow, but somehow cur should have dependency links and we should loop through them
+	slideshow.querySelectorAll('audio[x-keep="'+cur.id+'"], video[x-keep="'+cur.id+'"]').forEach(function(x) { fadeOutMedia(x, 1000); });
+	next.querySelectorAll('audio,video').forEach(play);
+        next.classList.add('active');
+	switch (next.id) {
+	case 's3.3':
+		delay(nextSlide, 7500);
+		break;
+	case 's4.1':
+		delay(nextSlide, 2000);
+		break;
+	case 's4.2':
+		delay(nextSlide, 6250);
+		break;
+	case 's5.1':
+		next.querySelector('audio').volume = 0.3;
+		delay(nextSlide, 5000);
+	}
+        state.n = i;
+    }
+
+function showCursor() {
+        document.body.classList.remove('no-cursor');  // Remove the class in case it's been added
+}
+
+function hideCursor() {
+	document.body.classList.add('no-cursor');
+}
+
+function toggleFullScreen() {
+  if (!document.fullscreenElement) {
+    // Request full screen
+    document.documentElement.requestFullscreen().then(() => {
+	document.addEventListener('mousemove', handleMouseMove);
+	}).catch(err => {
+      alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+    });
+  } else {
+    // Exit full screen
+    if (document.exitFullscreen) {
+	document.removeEventListener('mousemove', handleMouseMove);
+	showCursor();
+      document.exitFullscreen();
+    }
+  }
+}
+
+document.addEventListener('keydown', function(event) {
+	if (event.shiftKey && event.altKey && event.code === 'KeyT') {
+		let a = slides[state.n].querySelector('audio');
+		a.currentTime = a.duration - 3;
+		return;
+	}
+	if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) return;
+    switch (event.code) {
+	case 'Escape':
+		slideshow.querySelectorAll('audio,video').forEach(stop);
+		break;
+        case 'ArrowLeft':
+		prevSlide({user: true});
+            break;
+        case 'ArrowRight':
+		nextSlide({user: true});
+            break;
+        case 'Space':
+		nextSlide({user: true});
+            event.preventDefault(); // Prevent the default action (scrolling the page)
+		break;
+	case 'KeyF':
+		toggleFullScreen();
+		break;
+	case 'Digit0':
+	case 'Digit1':
+		gotoSlide(0, {user: true});
+		break;
+	case 'Digit9':
+		gotoSlide(slides.length - 1, {user: true});
+            break;
+    }
+});
+
+document.addEventListener('click', function() { nextSlide({user: true}); });
+
+function handleMouseMove() {
+    clearTimeout(mouseTimer);
+    showCursor();
+    mouseTimer = setTimeout(hideCursor, 1000);}
+</script>
+</body>
+</html>
+
