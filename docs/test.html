@@ -1,0 +1,79 @@
+<html>
+<head>
+</head>
+<body>
+<!--
+The following were generated with:
+
+src=docs/media2/media10.mp3; dst=$(basename $src).js; { echo -n 'window._'$(echo -n "$dst" | shasum -a 256 | cut -d' ' -f1)'={t:"audio/mpeg",s:String.raw`'; go run base128encode.go encode "$src" | sed -E -e 's/\r/č/g' -e 's/\$/Ĥ/g' -e 's/`/Š/g'; echo -n '`};'; } > "docs/$dst"
+
+src=docs/media2/media5.mp4; dst=$(basename $src).js; { echo -n 'window._'$(echo -n "$dst" | shasum -a 256 | cut -d' ' -f1)'={t:String.raw`video/mp4; codecs="avc1.4d4015"; profiles="isom,iso2,avc1,mp41"`,s:String.raw`'; go run base128encode.go encode "$src" | sed -E -e 's/\r/č/g' -e 's/\$/Ĥ/g' -e 's/`/Š/g'; echo -n '`};'; } > "docs/$dst"
+
+src=tibor.jpeg; dst=$(basename $src).js; { echo -n 'window._'$(echo -n "$dst" | shasum -a 256 | cut -d' ' -f1)'={t:"image/jpeg",s:String.raw`'; go run base128encode.go encode "$src" | sed -E -e 's/\r/č/g' -e 's/\$/Ĥ/g' -e 's/`/Š/g'; echo -n '`};'; } > "docs/$dst"
+-->
+<audio x-preload="/media10.mp3.js" controls></audio>
+<video x-preload="/media5.mp4.js" controls></video>
+<img x-preload="/tibor.jpeg.js"/>
+<script>
+function stringToUint8Array(str) {
+	var len = str.length;
+	var uint8Array = new Uint8Array(len);
+	for (var i = 0; i < len; i++) uint8Array[i] = str.charCodeAt(i) % 256;
+	return uint8Array;
+}
+
+function base128decode(input) {
+	if (!(input instanceof Uint8Array)) throw "expected type Uint8Array";
+	var l = input.length | 0;
+	var estimatedOutputLength = ((l / 8 | 0) + 1) * 7 | 0;
+	var output = new Uint8Array(estimatedOutputLength);
+	var buffer = 0 | 0;
+	var bitsLeft = 0 | 0;
+	var outputIndex = 0 | 0;
+	var b = 0 | 0;
+
+	for (var i = 0; i < l; i = (i + 1) | 0) {
+		b = input[i] | 0;
+		buffer = buffer | (b << bitsLeft);
+		bitsLeft = (bitsLeft + 7) | 0;
+		if (bitsLeft >= 8) {
+			output[outputIndex] = buffer & 0xFF;
+			outputIndex = (outputIndex + 1) | 0;
+			buffer = b >> (7 - (bitsLeft - 8));
+			bitsLeft = (bitsLeft - 8) | 0;
+		}
+	}
+
+	// Create a view of the output array with the correct length
+	return output.subarray(0, outputIndex);
+}
+
+async function hashString(message) {
+	const encoder = new TextEncoder();
+	const data = encoder.encode(message);
+	const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+	const hashArray = Array.from(new Uint8Array(hashBuffer));
+	const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+	return hashHex;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+	document.querySelectorAll('[x-preload]').forEach(media => {
+	        let script = document.createElement('script');
+	        script.src = media.getAttribute('x-preload');
+	        let filename = script.src.substring(script.src.lastIndexOf('/')+1);
+	        hashString(filename).then(hash => {
+			script.onload = function() {
+				console.log("Retrieved script:", hash);
+				let o = window["_"+hash];
+				const url = URL.createObjectURL(new Blob([base128decode(stringToUint8Array(o.s))], {type: o.t}));
+				media.src = url;
+				if ('load' in media) media.load();
+		};
+		document.body.appendChild(script);
+});
+	});
+});
+</script>
+</body>
+</html>
