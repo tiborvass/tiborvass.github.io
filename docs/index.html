@@ -8,9 +8,9 @@
             import {
                 getFirestore,
                 collection,
-                addDoc,
-                onSnapshot,
-                serverTimestamp,
+                getDocs,
+                doc,
+                setDoc,
             } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
 
             const firebaseConfig = {
@@ -41,6 +41,28 @@
                     },
                 );
             }
+
+            function setLeaderboardScore(username, score, callback) {
+                // username is the custom document ID you want to use
+                setDoc(doc(db, "leaderboard", username), { score: score })
+                    .then(function () {
+                        // Success!
+                        if (callback) callback();
+                    })
+                    .catch(function (error) {
+                        console.error("Error writing document: ", error);
+                        if (callback) callback(error);
+                    });
+            }
+
+            // Usage example:
+            setLeaderboardScore("toto", 42, function (error) {
+                if (error) {
+                    console.log("Failed to write score!");
+                } else {
+                    console.log("Score saved!");
+                }
+            });
 
             // Usage:
             getLeaderboardAsJson(function (leaderboard) {
