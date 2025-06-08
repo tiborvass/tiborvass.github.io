@@ -1,19 +1,17 @@
 <html>
-    <head></head>
+    <head>
+        <!-- Firebase App (the core Firebase SDK) -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-app-compat.js"></script>
+        <!-- Firebase Analytics -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics-compat.js"></script>
+        <!-- Firebase Firestore -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore-compat.js"></script>
+    </head>
     <body>
         Hello firebase
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
-            import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics.js";
-            import {
-                getFirestore,
-                collection,
-                getDocs,
-                doc,
-                setDoc,
-            } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
-
-            const firebaseConfig = {
+        <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
                 apiKey: "AIzaSyDoFu4h3WHRo5TqeVoSy1oFt-p_wLU0Lb8",
                 authDomain: "raph-test-7ba3c.firebaseapp.com",
                 projectId: "raph-test-7ba3c",
@@ -23,30 +21,30 @@
                 measurementId: "G-02PXQ9K2JT",
             };
 
-            const app = initializeApp(firebaseConfig);
-            const analytics = getAnalytics(app);
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            firebase.analytics();
 
-            // Modular Firestore syntax!
-            const db = getFirestore(app);
+            // Firestore reference
+            var db = firebase.firestore();
 
             function getLeaderboardAsJson(callback) {
-                getDocs(collection(db, "leaderboard")).then(
-                    function (snapshot) {
+                db.collection("leaderboard")
+                    .get()
+                    .then(function (snapshot) {
                         var leaderboard = {};
                         snapshot.forEach(function (doc) {
                             leaderboard[doc.id] = doc.data();
                         });
-                        // Call the callback function with the leaderboard object
                         callback(leaderboard);
-                    },
-                );
+                    });
             }
 
             function setLeaderboardScore(username, score, callback) {
-                // username is the custom document ID you want to use
-                setDoc(doc(db, "leaderboard", username), { score: score })
+                db.collection("leaderboard")
+                    .doc(username)
+                    .set({ score: score })
                     .then(function () {
-                        // Success!
                         if (callback) callback();
                     })
                     .catch(function (error) {
@@ -62,14 +60,8 @@
                     return;
                 }
                 console.log("Score saved!");
-                // Usage:
                 getLeaderboardAsJson(function (leaderboard) {
                     console.log(leaderboard);
-                    // Output example:
-                    // {
-                    //   raph: { score: 30 },
-                    //   tibor: { score: 20 }
-                    // }
                 });
             });
         </script>
