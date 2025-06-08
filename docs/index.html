@@ -29,19 +29,27 @@
             // Modular Firestore syntax!
             const db = getFirestore(app);
 
-            // Listen to real-time updates
-            onSnapshot(collection(db, "messages"), (snapshot) => {
-                snapshot.docChanges().forEach((change) => {
-                    if (change.type === "added") {
-                        console.log("New message:", change.doc.data());
-                    }
-                });
-            });
+            function getLeaderboardAsJson(callback) {
+                getDocs(collection(db, "leaderboard")).then(
+                    function (snapshot) {
+                        var leaderboard = {};
+                        snapshot.forEach(function (doc) {
+                            leaderboard[doc.id] = doc.data();
+                        });
+                        // Call the callback function with the leaderboard object
+                        callback(leaderboard);
+                    },
+                );
+            }
 
-            // Add a message
-            addDoc(collection(db, "messages"), {
-                text: "Hello, world!",
-                timestamp: serverTimestamp(),
+            // Usage:
+            getLeaderboardAsJson(function (leaderboard) {
+                console.log(leaderboard);
+                // Output example:
+                // {
+                //   raph: { score: 30 },
+                //   tibor: { score: 20 }
+                // }
             });
         </script>
     </body>
