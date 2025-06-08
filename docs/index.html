@@ -29,37 +29,47 @@
             // Modular Firestore syntax!
             const db = getFirestore(app);
 
-            // Write a score with a specific username as the doc ID
-            function setUserScore(username, score, callback) {
-                db.collection("leaderboard")
-                    .doc(username)
-                    .set({ score: score })
+            function getLeaderboardAsJson(callback) {
+                getDocs(collection(db, "leaderboard")).then(
+                    function (snapshot) {
+                        var leaderboard = {};
+                        snapshot.forEach(function (doc) {
+                            leaderboard[doc.id] = doc.data();
+                        });
+                        // Call the callback function with the leaderboard object
+                        callback(leaderboard);
+                    },
+                );
+            }
+
+            function setLeaderboardScore(username, score, callback) {
+                // username is the custom document ID you want to use
+                setDoc(doc(db, "leaderboard", username), { score: score })
                     .then(function () {
+                        // Success!
                         if (callback) callback();
                     })
                     .catch(function (error) {
+                        console.error("Error writing document: ", error);
                         if (callback) callback(error);
                     });
             }
 
-            // Get all users and scores as one object
-            function getLeaderboard(callback) {
-                db.collection("leaderboard")
-                    .get()
-                    .then(function (querySnapshot) {
-                        var leaderboard = {};
-                        querySnapshot.forEach(function (doc) {
-                            leaderboard[doc.id] = doc.data();
-                        });
-                        callback(leaderboard);
-                    });
-            }
-
-            // Example usage:
-            setUserScore("toto", 42, function () {
-                getLeaderboard(function (leaderboard) {
-                    document.getElementById("output").textContent =
-                        JSON.stringify(leaderboard, null, 2);
+            // Usage example:
+            setLeaderboardScore("toto", 42, function (error) {
+                if (error) {
+                    console.log("Failed to write score!");
+                    return;
+                }
+                console.log("Score saved!");
+                // Usage:
+                getLeaderboardAsJson(function (leaderboard) {
+                    console.log(leaderboard);
+                    // Output example:
+                    // {
+                    //   raph: { score: 30 },
+                    //   tibor: { score: 20 }
+                    // }
                 });
             });
         </script>
