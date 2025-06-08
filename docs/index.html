@@ -13,7 +13,6 @@
                 setDoc,
             } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
 
-            // Your config here
             const firebaseConfig = {
                 apiKey: "AIzaSyDoFu4h3WHRo5TqeVoSy1oFt-p_wLU0Lb8",
                 authDomain: "raph-test-7ba3c.firebaseapp.com",
@@ -24,11 +23,11 @@
                 measurementId: "G-02PXQ9K2JT",
             };
 
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
+            const app = initializeApp(firebaseConfig);
+            const analytics = getAnalytics(app);
 
-            // Get Firestore
-            const db = firebase.firestore();
+            // Modular Firestore syntax!
+            const db = getFirestore(app);
 
             // Write a score with a specific username as the doc ID
             function setUserScore(username, score, callback) {
@@ -47,9 +46,9 @@
             function getLeaderboard(callback) {
                 db.collection("leaderboard")
                     .get()
-                    .then(function (snapshot) {
+                    .then(function (querySnapshot) {
                         var leaderboard = {};
-                        snapshot.forEach(function (doc) {
+                        querySnapshot.forEach(function (doc) {
                             leaderboard[doc.id] = doc.data();
                         });
                         callback(leaderboard);
@@ -57,7 +56,7 @@
             }
 
             // Example usage:
-            setUserScore("toto", 45, function () {
+            setUserScore("toto", 42, function () {
                 getLeaderboard(function (leaderboard) {
                     document.getElementById("output").textContent =
                         JSON.stringify(leaderboard, null, 2);
