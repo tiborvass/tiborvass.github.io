@@ -1,78 +1,16 @@
+<!doctype html>
 <html>
-    <head></head>
+    <head>
+        <title>Vanilla Firebase Leaderboard</title>
+        <!-- Firebase App (core) -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js"></script>
+        <!-- Firestore -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js"></script>
+        <!-- Your app logic -->
+        <script src="app.js"></script>
+    </head>
     <body>
-        Hello firebase
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
-            import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics.js";
-            import {
-                getFirestore,
-                collection,
-                getDocs,
-                doc,
-                setDoc,
-            } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore.js";
-
-            const firebaseConfig = {
-                apiKey: "AIzaSyDoFu4h3WHRo5TqeVoSy1oFt-p_wLU0Lb8",
-                authDomain: "raph-test-7ba3c.firebaseapp.com",
-                projectId: "raph-test-7ba3c",
-                storageBucket: "raph-test-7ba3c.appspot.com",
-                messagingSenderId: "563723042354",
-                appId: "1:563723042354:web:ac84a66a15da7412bec62b",
-                measurementId: "G-02PXQ9K2JT",
-            };
-
-            const app = initializeApp(firebaseConfig);
-            const analytics = getAnalytics(app);
-
-            // Modular Firestore syntax!
-            const db = getFirestore(app);
-
-            function getLeaderboardAsJson(callback) {
-                getDocs(collection(db, "leaderboard")).then(
-                    function (snapshot) {
-                        var leaderboard = {};
-                        snapshot.forEach(function (doc) {
-                            leaderboard[doc.id] = doc.data();
-                        });
-                        // Call the callback function with the leaderboard object
-                        callback(leaderboard);
-                    },
-                );
-            }
-
-            function setLeaderboardScore(username, score, callback) {
-                // username is the custom document ID you want to use
-                setDoc(doc(db, "leaderboard", username), { score: score })
-                    .then(function () {
-                        // Success!
-                        if (callback) callback();
-                    })
-                    .catch(function (error) {
-                        console.error("Error writing document: ", error);
-                        if (callback) callback(error);
-                    });
-            }
-
-            // Usage example:
-            setLeaderboardScore("toto", 42, function (error) {
-                if (error) {
-                    console.log("Failed to write score!");
-                } else {
-                    console.log("Score saved!");
-                }
-            });
-
-            // Usage:
-            getLeaderboardAsJson(function (leaderboard) {
-                console.log(leaderboard);
-                // Output example:
-                // {
-                //   raph: { score: 30 },
-                //   tibor: { score: 20 }
-                // }
-            });
-        </script>
+        <h1>Leaderboard</h1>
+        <div id="output"></div>
     </body>
 </html>
