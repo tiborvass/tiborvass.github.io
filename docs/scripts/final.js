@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var currentUser = firebase.auth().currentUser;
       if (currentUser) {
         showLogout();
-        loggedInUser = authResult.user.providerData[0].displayName;
+        loggedInUser = firebase.auth().user.providerData[0].displayName;
       } else {
         showLogin();
       }
