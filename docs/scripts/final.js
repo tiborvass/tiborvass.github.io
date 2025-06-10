@@ -21,6 +21,7 @@ function updateStopwatch() {
 }
 
 function continueStopwatch() {
+  console.log("continueStopwatch", stopwatchStartTime);
   if (stopwatchStartTime) {
     if (stopwatchInterval) clearInterval(stopwatchInterval);
     stopwatchInterval = setInterval(updateStopwatch, 1000);
@@ -29,6 +30,7 @@ function continueStopwatch() {
 }
 
 function startStopwatch() {
+  console.log("startStopwatch");
   stopwatchStartTime = Date.now();
   continueStopwatch();
 }
@@ -105,6 +107,7 @@ function updateHighestTime() {
 
 // Stop the stopwatch and update highest time when needed
 function stopStopwatch(updateTime) {
+  console.log("stopStopwatch", updateTime);
   if (stopwatchInterval) {
     clearInterval(stopwatchInterval);
     stopwatchInterval = null;
@@ -114,9 +117,30 @@ function stopStopwatch(updateTime) {
   }
 }
 
+function logout() {
+  document.getElementById("loginButton").style = "display: block";
+  document.getElementById("logoutButton").style = "display: none";
+  firebase
+    .auth()
+    .signOut()
+    .then(function () {
+      loggedInUser = null;
+    })
+    .catch(function (err) {
+      console.error(err);
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   updateLeaderboardUser();
-  showPopup();
+  var currentUser = firebase.auth().currentUser;
+  if (currentUser) {
+    document.getElementById("loginButton").style = "display: none";
+    document.getElementById("logoutButton").style = "display: block";
+  } else {
+    document.getElementById("loginButton").style = "display: block";
+    document.getElementById("logoutButton").style = "display: none";
+  }
 
   ui.start("#firebaseui-auth-container", {
     callbacks: {
