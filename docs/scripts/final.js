@@ -186,6 +186,22 @@ function setLeaderboardScore(username, score, callback) {
 }
 
 ui.start("#firebaseui-auth-container", {
+  callbacks: {
+    signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+      // User successfully signed in.
+      // Return type determines whether we continue the redirect automatically
+      // or whether we leave that to developer to handle.
+      console.log("signed in!", authResult, redirectUrl);
+      return true;
+    },
+    uiShown: function () {
+      // The widget is rendered.
+      // Hide the loader.
+      document.getElementById("loader").style.display = "none";
+      console.log("UI shown");
+    },
+  },
+  signInFlow: "popup",
   signInOptions: [
     {
       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
