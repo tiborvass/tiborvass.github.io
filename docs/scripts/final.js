@@ -215,3 +215,7 @@ function setLeaderboardScore(username, score, callback) {
       if (callback) callback(error);
     });
 }
+
+var body = document.getElementsByTagName("body")[0];
+body.addEventListener("focus", resumeStopwatch);
+body.addEventListener("focusout", pauseStopwatch);
