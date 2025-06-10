@@ -181,6 +181,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (currentUser) {
         showLogout();
         loggedInUser = currentUser.providerData[0].displayName;
+        getLeaderboardAsJson(function (leaderboard) {
+          highestTime = leaderboard[loggedInUser].score;
+        });
       } else {
         showLogin();
       }
