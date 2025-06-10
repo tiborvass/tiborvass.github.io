@@ -117,14 +117,23 @@ function stopStopwatch(updateTime) {
   }
 }
 
-function logout() {
+function showLogin() {
   document.getElementById("loginButton").style = "display: block";
   document.getElementById("logoutButton").style = "display: none";
+}
+
+function showLogout() {
+  document.getElementById("loginButton").style = "display: none";
+  document.getElementById("logoutButton").style = "display: block";
+}
+
+function logout() {
   firebase
     .auth()
     .signOut()
     .then(function () {
       loggedInUser = null;
+      showLogin();
     })
     .catch(function (err) {
       console.error(err);
@@ -135,11 +144,9 @@ document.addEventListener("DOMContentLoaded", function () {
   updateLeaderboardUser();
   var currentUser = firebase.auth().currentUser;
   if (currentUser) {
-    document.getElementById("loginButton").style = "display: none";
-    document.getElementById("logoutButton").style = "display: block";
+    showLogout();
   } else {
-    document.getElementById("loginButton").style = "display: block";
-    document.getElementById("logoutButton").style = "display: none";
+    showLogin();
   }
 
   ui.start("#firebaseui-auth-container", {
@@ -149,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("signed in!", authResult.user.providerData[0].displayName);
         loggedInUser = authResult.user.providerData[0].displayName;
         updateLeaderboardUser();
+        showLogout();
         // false: do not redirect the page
         return false;
       },
