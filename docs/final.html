@@ -20,13 +20,13 @@
 
 </head>
 
-<body onfocus="continueStopwatch()" onfocusout="stopStopwatch(false)">
+<body onfocus="resumeStopwatch()" onfocusout="pauseStopwatch()">
   <h1 class="navBar">Welcome To drying Concrete simulator</h1>
   <h2 class="ui">This game will test your patience and your will to live</h2>
   <div id="leaderboard-user"></div>
   <div id="stopwatch" class="stopwatch">00:00:00</div>
   <button onclick="changeBrightness()">Start Concrete simulation</button>
-  <button onclick="stopStopwatch(true)" id="stop-btn">Stop Simulation</button>
+  <button onclick="stopStopwatch()" id="stop-btn">Stop Simulation</button>
   <div class="wetconcrete">
     <img id="concrete1" class="wetconcrete" src="/images/darkConcrete.jpg"></img>
   </div>

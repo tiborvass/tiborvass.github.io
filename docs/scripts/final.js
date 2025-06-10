@@ -34,6 +34,11 @@ function pauseStopwatch() {
   elapsedBeforePause += Date.now() - stopwatchStartTime;
 }
 
+function stopStopwatch() {
+  pauseStopwatch();
+  updateHighestTime();
+}
+
 function resumeStopwatch() {
   if (stopwatchInterval) return; // Already running!
   stopwatchStartTime = Date.now();
