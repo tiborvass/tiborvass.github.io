@@ -20,11 +20,17 @@ function updateStopwatch() {
     `${hours}:${minutes}:${seconds}`;
 }
 
+function continueStopwatch() {
+  if (stopwatchStartTime) {
+    if (stopwatchInterval) clearInterval(stopwatchInterval);
+    stopwatchInterval = setInterval(updateStopwatch, 1000);
+    updateStopwatch();
+  }
+}
+
 function startStopwatch() {
   stopwatchStartTime = Date.now();
-  if (stopwatchInterval) clearInterval(stopwatchInterval);
-  stopwatchInterval = setInterval(updateStopwatch, 1000);
-  updateStopwatch();
+  continueStopwatch();
 }
 
 function changeBrightness() {
@@ -48,25 +54,6 @@ function showPopup() {
 }
 function hidePopup() {
   document.getElementById("popup").style.display = "none";
-}
-
-// Helper to save users array to localStorage
-function saveUsers(users) {
-  localStorage.setItem("users", JSON.stringify(users));
-}
-
-// Login user function (now with password support)
-function loginUser(username, password) {
-  // TODO: auth the user
-  loggedInUser = username;
-  setLeaderboardScore(username, highestTime, function (error) {
-    if (error) {
-      alert("Failed to write score!");
-      return false;
-    }
-    updateLeaderboardUser();
-  });
-  return true;
 }
 
 // Display the logged-in user and their highest time under the leaderboard
@@ -117,15 +104,18 @@ function updateHighestTime() {
 }
 
 // Stop the stopwatch and update highest time when needed
-function stopStopwatch() {
+function stopStopwatch(updateTime) {
   if (stopwatchInterval) {
     clearInterval(stopwatchInterval);
     stopwatchInterval = null;
-    updateHighestTime();
+    if (updateTime) {
+      updateHighestTime();
+    }
   }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  updateLeaderboardUser();
   showPopup();
 
   ui.start("#firebaseui-auth-container", {
@@ -134,6 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
         hidePopup();
         console.log("signed in!", authResult.user.providerData[0].displayName);
         loggedInUser = authResult.user.providerData[0].displayName;
+        updateLeaderboardUser();
         // false: do not redirect the page
         return false;
       },
@@ -148,7 +139,6 @@ document.addEventListener("DOMContentLoaded", function () {
         signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
       },
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      // firebase.auth.GithubAuthProvider.PROVIDER_ID,
     ],
   });
 });

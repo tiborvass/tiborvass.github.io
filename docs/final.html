@@ -20,13 +20,13 @@
 
 </head>
 
-<body>
+<body onfocus="continueStopwatch()" onfocusout="stopStopwatch(false)">
   <h1 class="navBar">Welcome To drying Concrete simulator</h1>
   <h2 class="ui">This game will test your patience and your will to live</h2>
   <div id="leaderboard-user"></div>
   <div id="stopwatch" class="stopwatch">00:00:00</div>
   <button onclick="changeBrightness()">Start Concrete simulation</button>
-  <button onclick="stopStopwatch()" id="stop-btn">Stop Simulation</button>
+  <button onclick="stopStopwatch(true)" id="stop-btn">Stop Simulation</button>
   <div class="wetconcrete">
     <img id="concrete1" class="wetconcrete" src="/images/darkConcrete.jpg"></img>
   </div>
@@ -55,15 +55,6 @@
     <p>Login</p>
     <div id="firebaseui-auth-container"></div>
     <div id="loader">Loading...</div>
-    <div id="login-error" style="color:red; margin-top:8px;"></div>
-    <form>
-      <label for="username">Username:</label><br>
-      <input type="text" id="username" name="username"><br><br>
-      <label for="password">Password:</label><br>
-      <input type="password" id="password" name="password"><br><br>
-      <button type="button" onclick="hidePopup()">Close</button>
-      <button type="submit">Login</button>
-    </form>
   </div>
   <script>
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
