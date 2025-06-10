@@ -209,6 +209,5 @@ ui.start("#firebaseui-auth-container", {
     },
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
     firebase.auth.GithubAuthProvider.PROVIDER_ID,
-    firebase.auth.AppleAuthProvider.PROVIDER_ID,
   ],
 });
