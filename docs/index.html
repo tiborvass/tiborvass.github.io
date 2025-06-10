@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <!-- Firebase App (the core Firebase SDK) -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-app-compat.js"></script>
+        <!-- Firebase Analytics -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics-compat.js"></script>
+        <!-- Firebase Firestore -->
+        <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore-compat.js"></script>
+    </head>
+    <body>
+        Hello firebase
+        <script>
+            // Your web app's Firebase configuration
+            var firebaseConfig = {
+                apiKey: "AIzaSyDoFu4h3WHRo5TqeVoSy1oFt-p_wLU0Lb8",
+                authDomain: "raph-test-7ba3c.firebaseapp.com",
+                projectId: "raph-test-7ba3c",
+                storageBucket: "raph-test-7ba3c.appspot.com",
+                messagingSenderId: "563723042354",
+                appId: "1:563723042354:web:ac84a66a15da7412bec62b",
+                measurementId: "G-02PXQ9K2JT",
+            };
+
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            firebase.analytics();
+
+            // Firestore reference
+            var db = firebase.firestore();
+
+            function getLeaderboardAsJson(callback) {
+                db.collection("leaderboard")
+                    .get()
+                    .then(function (snapshot) {
+                        var leaderboard = {};
+                        snapshot.forEach(function (doc) {
+                            leaderboard[doc.id] = doc.data();
+                        });
+                        callback(leaderboard);
+                    });
+            }
+
+            function setLeaderboardScore(username, score, callback) {
+                db.collection("leaderboard")
+                    .doc(username)
+                    .set({ score: score })
+                    .then(function () {
+                        if (callback) callback();
+                    })
+                    .catch(function (error) {
+                        console.error("Error writing document: ", error);
+                        if (callback) callback(error);
+                    });
+            }
+
+            // Usage example:
+            setLeaderboardScore("toto", 42, function (error) {
+                if (error) {
+                    console.log("Failed to write score!");
+                    return;
+                }
+                console.log("Score saved!");
+                getLeaderboardAsJson(function (leaderboard) {
+                    console.log(leaderboard);
+                });
+            });
+        </script>
+    </body>
+</html>
