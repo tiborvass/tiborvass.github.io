@@ -125,39 +125,39 @@ function stopStopwatch() {
   }
 }
 
-// Example: function to check if user is logged in
-function isUserLoggedIn() {
-  return loggedInUser !== null;
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   showPopup();
 
-  const errorMsg = document.getElementById("login-error");
-  const popupForm = document.querySelector("#popup form");
-  if (popupForm) {
-    popupForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-      errorMsg.textContent = ""; // Clear previous error
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value;
-      if (!username) {
-        errorMsg.textContent = "Please enter a username.";
-        return;
-      }
-      if (!password) {
-        errorMsg.textContent = "Please enter a password.";
-        return;
-      }
-      // Try to login, only hide popup if successful
-      if (loginUser(username, password)) {
+  ui.start("#firebaseui-auth-container", {
+    callbacks: {
+      signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+        // User successfully signed in.
+        // Return type determines whether we continue the redirect automatically
+        // or whether we leave that to developer to handle.
+        console.log("signed in!", authResult);
+        console.log(auth.currentUser);
+        console.log(auth.currentUser.providerData[0].displayName);
+        // updateLeaderboardUser();
+        return false;
+      },
+      uiShown: function () {
+        // The widget is rendered.
+        // Hide the loader.
+        document.getElementById("loader").style.display = "none";
         hidePopup();
-      } else {
-        errorMsg.textContent = "Password incorrect";
-      }
-    });
-  }
-  updateLeaderboardUser();
+        // console.log("UI shown");
+      },
+    },
+    signInFlow: "popup",
+    signInOptions: [
+      {
+        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+        signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
+      },
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      firebase.auth.GithubAuthProvider.PROVIDER_ID,
+    ],
+  });
 });
 
 function getLeaderboardAsJson(callback) {
@@ -184,30 +184,3 @@ function setLeaderboardScore(username, score, callback) {
       if (callback) callback(error);
     });
 }
-
-ui.start("#firebaseui-auth-container", {
-  callbacks: {
-    signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-      // User successfully signed in.
-      // Return type determines whether we continue the redirect automatically
-      // or whether we leave that to developer to handle.
-      console.log("signed in!", authResult, redirectUrl);
-      return true;
-    },
-    uiShown: function () {
-      // The widget is rendered.
-      // Hide the loader.
-      document.getElementById("loader").style.display = "none";
-      console.log("UI shown");
-    },
-  },
-  signInFlow: "popup",
-  signInOptions: [
-    {
-      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
-    },
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.GithubAuthProvider.PROVIDER_ID,
-  ],
-});
