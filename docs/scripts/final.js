@@ -142,37 +142,48 @@ function logout() {
 
 document.addEventListener("DOMContentLoaded", function () {
   updateLeaderboardUser();
-  var currentUser = firebase.auth().currentUser;
-  if (currentUser) {
-    showLogout();
-  } else {
-    showLogin();
-  }
-
-  ui.start("#firebaseui-auth-container", {
-    callbacks: {
-      signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-        hidePopup();
-        console.log("signed in!", authResult.user.providerData[0].displayName);
-        loggedInUser = authResult.user.providerData[0].displayName;
-        updateLeaderboardUser();
+  var currentUser = firebase
+    .auth()
+    .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(function () {
+      var currentUser = firebase.auth().currentUser;
+      if (currentUser) {
         showLogout();
-        // false: do not redirect the page
-        return false;
-      },
-      uiShown: function () {
-        document.getElementById("loader").style.display = "none";
-      },
-    },
-    signInFlow: "popup",
-    signInOptions: [
-      {
-        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
-      },
-      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    ],
-  });
+      } else {
+        showLogin();
+      }
+      ui.start("#firebaseui-auth-container", {
+        callbacks: {
+          signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+            hidePopup();
+            console.log(
+              "signed in!",
+              authResult.user.providerData[0].displayName,
+            );
+            loggedInUser = authResult.user.providerData[0].displayName;
+            updateLeaderboardUser();
+            showLogout();
+            // false: do not redirect the page
+            return false;
+          },
+          uiShown: function () {
+            document.getElementById("loader").style.display = "none";
+          },
+        },
+        signInFlow: "popup",
+        signInOptions: [
+          {
+            provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            signInMethod:
+              firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
+          },
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        ],
+      });
+    })
+    .catch(function (err) {
+      console.error(err);
+    });
 });
 
 function getLeaderboardAsJson(callback) {
