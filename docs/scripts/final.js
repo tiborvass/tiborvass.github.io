@@ -53,6 +53,30 @@ function resetBrightness() {
 
 function showPopup() {
   document.getElementById("popup").style.display = "block";
+  ui.start("#firebaseui-auth-container", {
+    callbacks: {
+      signInSuccessWithAuthResult: function (authResult, redirectUrl) {
+        hidePopup();
+        console.log("signed in!", authResult.user.providerData[0].displayName);
+        loggedInUser = authResult.user.providerData[0].displayName;
+        updateLeaderboardUser();
+        showLogout();
+        // false: do not redirect the page
+        return false;
+      },
+      uiShown: function () {
+        document.getElementById("loader").style.display = "none";
+      },
+    },
+    signInFlow: "popup",
+    signInOptions: [
+      {
+        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+        signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
+      },
+      firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    ],
+  });
 }
 function hidePopup() {
   document.getElementById("popup").style.display = "none";
@@ -142,7 +166,7 @@ function logout() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  var currentUser = firebase
+  firebase
     .auth()
     .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
     .then(function () {
@@ -154,34 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
         showLogin();
       }
       updateLeaderboardUser();
-      ui.start("#firebaseui-auth-container", {
-        callbacks: {
-          signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-            hidePopup();
-            console.log(
-              "signed in!",
-              authResult.user.providerData[0].displayName,
-            );
-            loggedInUser = authResult.user.providerData[0].displayName;
-            updateLeaderboardUser();
-            showLogout();
-            // false: do not redirect the page
-            return false;
-          },
-          uiShown: function () {
-            document.getElementById("loader").style.display = "none";
-          },
-        },
-        signInFlow: "popup",
-        signInOptions: [
-          {
-            provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-            signInMethod:
-              firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
-          },
-          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        ],
-      });
     })
     .catch(function (err) {
       console.error(err);
