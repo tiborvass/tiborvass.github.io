@@ -134,6 +134,7 @@ function logout() {
     .then(function () {
       loggedInUser = null;
       showLogin();
+      updateLeaderboardUser();
     })
     .catch(function (err) {
       console.error(err);
