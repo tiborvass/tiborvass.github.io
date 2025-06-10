@@ -40,6 +40,7 @@ function stopStopwatch() {
 }
 
 function resumeStopwatch() {
+  if (!elapsedBeforePause) return;
   if (stopwatchInterval) return; // Already running!
   stopwatchStartTime = Date.now();
   stopwatchInterval = setInterval(updateStopwatch, 100);
