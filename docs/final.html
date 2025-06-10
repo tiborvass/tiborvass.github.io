@@ -6,14 +6,17 @@
   <title>Drying concrete Simulator</title>
   <link href="../styles/final.css" rel="stylesheet">
 
-  <head>
+
     <!-- Firebase App (the core Firebase SDK) -->
     <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-app-compat.js"></script>
     <!-- Firebase Analytics -->
     <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics-compat.js"></script>
     <!-- Firebase Firestore -->
     <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore-compat.js"></script>
-  </head>
+
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+
 </head>
 
 <body>
@@ -77,6 +80,9 @@
 
     // Firestore reference
     var db = firebase.firestore();
+    // Initialize the FirebaseUI Widget using Firebase.
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
   </script>
   <script src="/scripts/final.js" rel="scripts"></script>
 </body>
