@@ -131,21 +131,14 @@ document.addEventListener("DOMContentLoaded", function () {
   ui.start("#firebaseui-auth-container", {
     callbacks: {
       signInSuccessWithAuthResult: function (authResult, redirectUrl) {
-        // User successfully signed in.
-        // Return type determines whether we continue the redirect automatically
-        // or whether we leave that to developer to handle.
+        hidePopup();
         console.log("signed in!", authResult.user.providerData[0].displayName);
-        console.log(authResult.user);
-        // console.log(auth.currentUser.providerData[0].displayName);
-        // updateLeaderboardUser();
+        loggedInUser = authResult.user.providerData[0].displayName;
+        // false: do not redirect the page
         return false;
       },
       uiShown: function () {
-        // The widget is rendered.
-        // Hide the loader.
         document.getElementById("loader").style.display = "none";
-        hidePopup();
-        // console.log("UI shown");
       },
     },
     signInFlow: "popup",
@@ -155,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
         signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
       },
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      firebase.auth.GithubAuthProvider.PROVIDER_ID,
+      // firebase.auth.GithubAuthProvider.PROVIDER_ID,
     ],
   });
 });
