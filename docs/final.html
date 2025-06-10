@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Drying concrete Simulator</title>
+  <link href="../styles/final.css" rel="stylesheet">
+
+  <head>
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-app-compat.js"></script>
+    <!-- Firebase Analytics -->
+    <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-analytics-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/11.9.0/firebase-firestore-compat.js"></script>
+  </head>
+</head>
+
+<body>
+  <h1 class="navBar">Welcome To drying Concrete simulator</h1>
+  <h2 class="ui">This game will test your patience and your will to live</h2>
+  <div id="leaderboard-user"></div>
+  <div id="stopwatch" class="stopwatch">00:00:00</div>
+  <button onclick="changeBrightness()">Start Concrete simulation</button>
+  <button onclick="stopStopwatch()" id="stop-btn">Stop Simulation</button>
+  <div class="wetconcrete">
+    <img id="concrete1" class="wetconcrete" src="/images/darkConcrete.jpg"></img>
+  </div>
+  <h2>Leaderboard</h2>
+  <div id="leaderboard-user"></div>
+  <table id="leaderboard-table" class="leaderboard-table" style="margin-bottom: 1em;">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Highest Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Filled by JS -->
+    </tbody>
+  </table>
+  <h2>Benefits</h2>
+  <ul class="ulbox">
+    <li>Improves your patience</li>
+    <li>Improves your will to live</li>
+    <li>Improves your ability to wait</li>
+  </ul>
+  <button onclick="showPopup()">Login/Sign Up</button>
+
+  <div id="popup">
+    <p>Login</p>
+    <div id="login-error" style="color:red; margin-top:8px;"></div>
+    <form>
+      <label for="username">Username:</label><br>
+      <input type="text" id="username" name="username"><br><br>
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password"><br><br>
+      <button type="button" onclick="hidePopup()">Close</button>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+  <script>
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+        apiKey: "AIzaSyDoFu4h3WHRo5TqeVoSy1oFt-p_wLU0Lb8",
+        authDomain: "raph-test-7ba3c.firebaseapp.com",
+        projectId: "raph-test-7ba3c",
+        storageBucket: "raph-test-7ba3c.appspot.com",
+        messagingSenderId: "563723042354",
+        appId: "1:563723042354:web:ac84a66a15da7412bec62b",
+        measurementId: "G-02PXQ9K2JT",
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    // Firestore reference
+    var db = firebase.firestore();
+  </script>
+  <script src="/scripts/final.js" rel="scripts"></script>
+</body>
+
+</html>
