@@ -1,15 +1,15 @@
-let brightness = 0.5;
-let stopwatchInterval = null;
-let stopwatchStartTime = null;
-
 // Store logged-in user
 let loggedInUser = null;
 let highestTime = 0; // in milliseconds
+let brightness = 0.5;
+let stopwatchInterval = null;
+let stopwatchStartTime = null; // The time when (re)started
+let elapsedBeforePause = 0; // ms accumulated before last pause
 
 function updateStopwatch() {
   if (!stopwatchStartTime) return;
   const now = Date.now();
-  const elapsed = now - stopwatchStartTime;
+  const elapsed = elapsedBeforePause + (now - stopwatchStartTime);
   const hours = String(Math.floor(elapsed / 3600000)).padStart(2, "0");
   const minutes = String(Math.floor((elapsed % 3600000) / 60000)).padStart(
     2,
@@ -20,19 +20,32 @@ function updateStopwatch() {
     `${hours}:${minutes}:${seconds}`;
 }
 
-function continueStopwatch() {
-  console.log("continueStopwatch", stopwatchStartTime);
-  if (stopwatchStartTime) {
-    if (stopwatchInterval) clearInterval(stopwatchInterval);
-    stopwatchInterval = setInterval(updateStopwatch, 1000);
-    updateStopwatch();
-  }
+function startStopwatch() {
+  if (stopwatchInterval) return; // Already running!
+  stopwatchStartTime = Date.now();
+  stopwatchInterval = setInterval(updateStopwatch, 100);
+  updateStopwatch();
 }
 
-function startStopwatch() {
-  console.log("startStopwatch");
+function pauseStopwatch() {
+  if (!stopwatchInterval) return; // Not running
+  clearInterval(stopwatchInterval);
+  stopwatchInterval = null;
+  elapsedBeforePause += Date.now() - stopwatchStartTime;
+}
+
+function resumeStopwatch() {
+  if (stopwatchInterval) return; // Already running!
   stopwatchStartTime = Date.now();
-  continueStopwatch();
+  stopwatchInterval = setInterval(updateStopwatch, 100);
+}
+
+function resetStopwatch() {
+  clearInterval(stopwatchInterval);
+  stopwatchInterval = null;
+  stopwatchStartTime = null;
+  elapsedBeforePause = 0;
+  document.getElementById("stopwatch").textContent = "00:00:00";
 }
 
 function changeBrightness() {
@@ -126,18 +139,6 @@ function updateHighestTime() {
       }
       updateLeaderboardUser();
     });
-  }
-}
-
-// Stop the stopwatch and update highest time when needed
-function stopStopwatch(updateTime) {
-  console.log("stopStopwatch", updateTime);
-  if (stopwatchInterval) {
-    clearInterval(stopwatchInterval);
-    stopwatchInterval = null;
-    if (updateTime) {
-      updateHighestTime();
-    }
   }
 }
 
