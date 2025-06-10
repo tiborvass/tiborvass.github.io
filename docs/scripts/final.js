@@ -141,7 +141,6 @@ function logout() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  updateLeaderboardUser();
   var currentUser = firebase
     .auth()
     .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -149,9 +148,11 @@ document.addEventListener("DOMContentLoaded", function () {
       var currentUser = firebase.auth().currentUser;
       if (currentUser) {
         showLogout();
+        loggedInUser = authResult.user.providerData[0].displayName;
       } else {
         showLogin();
       }
+      updateLeaderboardUser();
       ui.start("#firebaseui-auth-container", {
         callbacks: {
           signInSuccessWithAuthResult: function (authResult, redirectUrl) {
