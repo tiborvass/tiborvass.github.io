@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // User successfully signed in.
         // Return type determines whether we continue the redirect automatically
         // or whether we leave that to developer to handle.
-        console.log("signed in!", authResult.user.providerData);
+        console.log("signed in!", authResult.user.providerData[0].displayName);
         console.log(authResult.user);
         // console.log(auth.currentUser.providerData[0].displayName);
         // updateLeaderboardUser();
